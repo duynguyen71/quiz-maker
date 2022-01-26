@@ -1,8 +1,10 @@
 package com.nkd.quizmaker.service;
 
 import com.nkd.quizmaker.model.Assignment;
+import com.nkd.quizmaker.model.AssignmentInfo;
 import com.nkd.quizmaker.model.Quiz;
 import com.nkd.quizmaker.model.User;
+import com.nkd.quizmaker.repo.AssignmentInfoRepository;
 import com.nkd.quizmaker.repo.AssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,28 +17,43 @@ import java.util.Optional;
 public class AssignmentService {
 
     private final AssignmentRepository assignmentRepo;
+    private final AssignmentInfoRepository assignmentInfoRepo;
 
-    public Assignment save(Assignment assignment){
+    public Assignment save(Assignment assignment) {
         return assignmentRepo.save(assignment);
     }
 
-    public Assignment getByUserAndQuiz(User user,Quiz quiz){
-        Optional<Assignment> optional = assignmentRepo.findByUserAndQuiz(user, quiz);
-        if(optional.isPresent())
-            return optional.get();
-        return null;
+    public Assignment getByUserAndQuiz(User user, Quiz quiz, Integer active) {
+
+        return assignmentRepo.findByUserAndQuizAndActive(user, quiz, active).orElse(null);
     }
 
-    public List<Assignment> getAssignmentQuizzes(User user) {
-        return assignmentRepo.findByQuizOwnerNative(user.getUid());
-    }
-
-    public List<Assignment> getAssignment(Quiz quiz){
-        return assignmentRepo.findByQuiz(quiz);
+    public Assignment getAssignmentByIdAndAssignedUser(Assignment.QuizAssignmentId id, User user) {
+        return assignmentRepo.findByIdAndUserAndActive(id, user, 1).orElse(null);
     }
 
 
-    public int countAssignedUsers(Quiz quiz) {
-        return assignmentRepo.countByQuiz(quiz);
+    public AssignmentInfo saveInfo(AssignmentInfo assignmentInfo) {
+        return assignmentInfoRepo.save(assignmentInfo);
     }
+
+    public List<Assignment> getAssignmentByInfo(AssignmentInfo info) {
+        return assignmentRepo.findAllByAssignmentInfo(info);
+    }
+
+
+    public AssignmentInfo getAssignmentInfos(Long id) {
+        return assignmentInfoRepo.findById(id).orElse(null);
+    }
+
+
+    public List<Assignment> getAssignedQuizzes(User user, Integer active) {
+        return assignmentRepo.findAllByUserAndActiveOrderByCreatedDateDesc(user, active);
+    }
+
+    public List<AssignmentInfo> getAssignmentInfos(User owner, Integer active) {
+        return assignmentInfoRepo.findAllByQuiz_OwnersAndActiveOrderByCreateDateDesc(owner, active);
+    }
+
+
 }

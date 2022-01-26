@@ -1,5 +1,6 @@
 package com.nkd.quizmaker.helper;
 
+import com.nkd.quizmaker.enumm.EAnswerType;
 import com.nkd.quizmaker.enumm.EQuizStatus;
 import com.nkd.quizmaker.enumm.EQuizType;
 import com.nkd.quizmaker.mapper.QuestionMapper;
@@ -10,7 +11,6 @@ import com.nkd.quizmaker.request.*;
 import com.nkd.quizmaker.response.BaseResponse;
 import com.nkd.quizmaker.response.QuestionResponse;
 import com.nkd.quizmaker.response.QuizOverview;
-import com.nkd.quizmaker.response.QuizResponse;
 import com.nkd.quizmaker.service.*;
 import com.nkd.quizmaker.utils.QuizUtils;
 import com.nkd.quizmaker.utils.ValidatorUtils;
@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component("QuizHelper")
@@ -103,10 +102,21 @@ public class QuizHelper {
      * find quiz by code
      *
      * @param code
+     * @param params
      * @return
      */
-    public ResponseEntity<?> findQuizByCode(String code) {
-        Quiz quiz = quizService.getByCode(code);
+    public ResponseEntity<?> findQuizByCode(String code, Map<String, String> params) {
+        Integer status = 2;
+        String paramStatus = params.get("status");
+        if (!ValidatorUtils.isNullOrBlank(paramStatus) && ValidatorUtils.isNumeric(paramStatus)) {
+            status = Integer.parseInt(paramStatus);
+        }
+        Integer active = 1;
+        String paramActive = params.get("active");
+        if (!ValidatorUtils.isNullOrBlank(paramActive) && ValidatorUtils.isNumeric(paramActive)) {
+            active = Integer.parseInt(paramActive);
+        }
+        Quiz quiz = quizService.getQuizByCodeAndStatusNative(code, active, status);
         if (quiz == null) {
             return ResponseEntity.status(404)
                     .body(new BaseResponse(null, null, null, "Could not found quiz with code: " + code));
@@ -130,6 +140,7 @@ public class QuizHelper {
         List<QuestionResponse> rs = questions.stream().map(QuestionMapper::toQuestionResponse).collect(Collectors.toList());
         return ResponseEntity.ok(BaseResponse.successData(rs));
     }
+
 
     /**
      * save quiz
@@ -160,7 +171,7 @@ public class QuizHelper {
             quiz.setQuizType(EQuizType.FUN);
         }
         int status = quizRequest.getStatus();
-        log.info("Quiz request status - {}", status);
+
         EQuizStatus s = EQuizStatus.findByValue(status);
         if (s != null) {
             quiz.setStatus(s.getStatus());
@@ -177,11 +188,8 @@ public class QuizHelper {
         if (subjectRequest != null) {
             if (subjectRequest.getId() != null && (subject = subjectService.getById(subjectRequest.getId())) != null) {
                 quiz.setSubject(subject);
-                log.info("GET ID");
             } else if (subjectRequest.getTitle() != null && (subject = subjectService.getByName(subjectRequest.getTitle())) != null) {
                 quiz.setSubject(subject);
-//                quiz = quizService.save(quiz);
-                log.info("GET TITLE");
             } else {
                 subject = new Subject();
                 subject.setTitle(subjectRequest.getTitle());
@@ -208,6 +216,7 @@ public class QuizHelper {
                     question.getQuizzes().add(quiz);
 
                 }
+                question.setOptionType(EAnswerType.MULTIPLE_CHOICE);
                 question.setTitle(questionRequest.getTitle());
                 question.setActive(1);
 //                question.setOptionType(questionRequest.getOptionType());
@@ -227,7 +236,11 @@ public class QuizHelper {
                         option.getQuestions().add(question);
                     }
                     option.setContent(optionRequest.getContent());
-                    option.setScore(optionRequest.getScore());
+                    if (optionRequest.getScore() != null) {
+                        option.setScore(optionRequest.getScore());
+                    } else {
+                        option.setScore(0.0);
+                    }
                     option.setFExplanation(optionRequest.getFExplanation());
                     option.setTExplanation(optionRequest.getTExplanation());
                     option = optionService.save(option);

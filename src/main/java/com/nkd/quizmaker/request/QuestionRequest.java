@@ -11,7 +11,7 @@ public class QuestionRequest {
 
     private String title;
 
-    private EAnswerType optionType;
+    private String optionType;
 
     private List<OptionRequest> options;
 }

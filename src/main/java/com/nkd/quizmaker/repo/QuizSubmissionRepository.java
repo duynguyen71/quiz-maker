@@ -1,5 +1,6 @@
 package com.nkd.quizmaker.repo;
 
+import com.nkd.quizmaker.enumm.ESubmitType;
 import com.nkd.quizmaker.model.Quiz;
 import com.nkd.quizmaker.model.QuizSubmission;
 import com.nkd.quizmaker.model.User;
@@ -12,15 +13,21 @@ import java.util.Optional;
 @Repository
 public interface QuizSubmissionRepository extends JpaRepository<QuizSubmission, Long> {
 
-    boolean existsByQuizAndUser(Quiz quiz,User user);
+    boolean existsByQuizAndUser(Quiz quiz, User user);
 
     List<QuizSubmission> findAllByUser(User user);
 
     List<QuizSubmission> findByQuiz(Quiz quiz);
 
-    List<QuizSubmission> findAllByQuizAndUser(Quiz quiz,User user);
+    List<QuizSubmission> findAllByQuizAndUserOrderByAttemptDesc(Quiz quiz, User user);
 
     int countByQuiz(Quiz quiz);
 
-    int countByUserAndQuiz(User user,Quiz quiz);
+    int countByUserAndQuiz(User user, Quiz quiz);
+
+    Optional<QuizSubmission> findByQuizAndUserAndSubmissionType(Quiz quiz, User user, ESubmitType submitType);
+
+
+    List<QuizSubmission> findAllByUserAndQuizAndSubmissionTypeOrderByCreateDateDesc(User user, Quiz quiz, ESubmitType submitType);
+
 }

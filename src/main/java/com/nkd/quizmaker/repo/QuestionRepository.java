@@ -31,4 +31,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
                     "WHERE uq.user_id = :userId AND qs.id = :questionId "
     )
     Optional<Question> findQuestionNative(Long userId, Long questionId);
+
+    List<Question> findAllByQuizzesAndActive(Quiz quiz,Integer active);
+
+
 }

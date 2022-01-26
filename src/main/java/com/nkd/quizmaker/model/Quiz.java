@@ -99,5 +99,8 @@ public class Quiz {
         question.getQuizzes().add(this);
     }
 
+    @OneToMany(mappedBy = "quiz", fetch = FetchType.LAZY)
+    private List<AssignmentInfo> assignmentInfo = new ArrayList<>();
+
 
 }

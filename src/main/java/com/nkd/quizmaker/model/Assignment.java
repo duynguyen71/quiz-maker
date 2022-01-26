@@ -20,9 +20,8 @@ public class Assignment {
     @EmbeddedId
     private QuizAssignmentId id;
 
-    private Date startDate;
-
-    private Date finishDate;
+    @ManyToOne
+    private AssignmentInfo assignmentInfo;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -32,11 +31,11 @@ public class Assignment {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_date")
-    private Date update_date;
+    private Date updateDate;
 
-    private int status;
+    private int status = 1;
 
-    private int active;
+    private int active = 1;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")

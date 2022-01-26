@@ -8,13 +8,13 @@ import java.util.Date;
 @Data
 public class AssignmentQuizResponse {
 
-    @JsonFormat(pattern = "HH:mm dd-MM")
+    @JsonFormat(pattern = "HH:mm dd-MM-yyyy")
     private Date startDate;
 
-    @JsonFormat(pattern = "HH:mm dd-MM")
+    @JsonFormat(pattern = "HH:mm dd-MM-yyyy")
     private Date finishDate;
 
-    @JsonFormat(pattern = "HH:mm dd-MM")
+    @JsonFormat(pattern = "HH:mm dd-MM-yyyy")
     private Date createDate;
 
     private Long quizId;

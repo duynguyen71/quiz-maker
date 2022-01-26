@@ -62,7 +62,7 @@ public class QuizMapper {
 
 
     public static QuizOverview toQuizOverview(
-            Quiz quiz, int playedCount
+            Quiz quiz, Integer playedCount
     ) {
         QuizOverview quizOverview = new QuizOverview();
         quizOverview.setId(quiz.getId());
@@ -77,6 +77,25 @@ public class QuizMapper {
         quizOverview.setCode(quiz.getCode());
         return quizOverview;
     }
+    public static QuizOverview toQuizOverview(
+            Quiz quiz, double score
+    ) {
+        QuizOverview quizOverview = new QuizOverview();
+        quizOverview.setId(quiz.getId());
+        quizOverview.setTitle(quiz.getTitle());
+        quizOverview.setLimitTime(quiz.getLimitTime());
+        quizOverview.setNumOfQuestions(quiz.getQuestions().size());
+        quizOverview.setStatus(quiz.getStatus());
+        quizOverview.setActive(quiz.getActive());
+        quizOverview.setCreateDate(quiz.getCreateDate());
+        quizOverview.setImage(quiz.getQuizImage());
+        quizOverview.setScore(score);
+        quizOverview.setCode(quiz.getCode());
+        return quizOverview;
+    }
+
+
+
 
     public static QuizSubmissionResponse toQuizSubmissionResponse(QuizSubmission quizSubmission) {
         QuizSubmissionResponse resp = new QuizSubmissionResponse();

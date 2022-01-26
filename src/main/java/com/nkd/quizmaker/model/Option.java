@@ -23,7 +23,7 @@ public class Option {
     @Column(nullable = false)
     private String content;
 
-    private Double score;
+    private Double score=0.0;
 
     @ManyToMany
     @JoinTable(name = "option_question",

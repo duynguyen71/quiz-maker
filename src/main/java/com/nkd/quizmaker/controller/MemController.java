@@ -65,8 +65,8 @@ public class MemController {
     }
 
     @PostMapping("/users/me/quizzes/{id}")
-    public ResponseEntity<?> removeQuiz(@PathVariable("id") Long id,@RequestParam("active") Integer active){
-        return userHelper.removeQuiz(id,active);
+    public ResponseEntity<?> removeQuiz(@PathVariable("id") Long id, @RequestParam("active") Integer active) {
+        return userHelper.removeQuiz(id, active);
     }
 
     @DeleteMapping("/user/me/questions/{id}")
@@ -74,10 +74,14 @@ public class MemController {
         return quizHelper.removeQuestion(questionId);
     }
 
-
     @PostMapping("/users/me/submission-answers")
     public ResponseEntity<?> submissionAnswers(@RequestBody @Valid QuizSubmissionRequest req) {
-        return userHelper.submissionAnswers(req);
+        return userHelper.submitFunQuiz(req);
+    }
+
+    @PostMapping("/users/me/exam/submission-answers")
+    public ResponseEntity<?> submissionExamQuiz(@RequestBody @Valid QuizSubmissionRequest req) {
+        return userHelper.submitExamQuiz(req);
     }
 
     @GetMapping("/users/me/submission-answers")
@@ -86,10 +90,17 @@ public class MemController {
     }
 
 
-    @GetMapping("/users/me/assign-quizzes")
-    public ResponseEntity<?> getAssignmentQuizzes() {
+    @GetMapping("/users/me/assignments/info")
+    public ResponseEntity<?> getAssignmentDetail() {
         return userHelper.getAssigmentQuizzes();
     }
+
+    @PostMapping("/users/me/assigment/assign-users")
+    public ResponseEntity<?> assignQuizToUsers(@Valid @RequestBody AssignmentRequest request) {
+        return userHelper.assignToUsers(request);
+    }
+
+
 
     @GetMapping("/quizzes/questions")
     public ResponseEntity<?> getQuestions(@RequestParam Map<String, String> params) {
@@ -101,15 +112,26 @@ public class MemController {
         return userHelper.getAssignedQuizzes();
     }
 
-    @GetMapping("/assigment/quizzes/{quizId}/users")
-    public ResponseEntity<?> getAssignedUsers(@PathVariable("quizId") Long quizId) {
-        return userHelper.getAssignedUsers(quizId);
+    @GetMapping("/users/me/assigned-quizzes/{id}")
+    public ResponseEntity<?> getAssignedQuiz(@PathVariable("id") Long quizId) {
+        return userHelper.getAssignedQuiz(quizId);
     }
 
-    @PostMapping("/assigment/users")
-    public ResponseEntity<?> assignQuizToUsers(@Valid @RequestBody AssignmentRequest request) {
-        return userHelper.assignToUsers(request);
+    @GetMapping("/users/me/assigned-quizzes/{code}/detail")
+    public ResponseEntity<?> getAssignedQuizDetail(@PathVariable("code") String code) {
+        return userHelper.getAssignedQuizDetail(code);
     }
+
+    @GetMapping("/assigment/quizzes/{quizId}/users")
+    public ResponseEntity<?> getAssignmentReport(@PathVariable("quizId") Long aInfoId) {
+        return userHelper.getAssignmentReport(aInfoId);
+    }
+
+    @GetMapping("/users/me/submission/quizzes/{code}")
+    public ResponseEntity<?> getSubmissionQuizAnswer(@PathVariable("code") String code) {
+        return userHelper.getSubmissionAnswer(code);
+    }
+
 
     @GetMapping("/users/me/change-password")
     public ResponseEntity<?> changePasswordRequest() {

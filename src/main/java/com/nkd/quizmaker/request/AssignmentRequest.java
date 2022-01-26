@@ -5,16 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 @Data
 public class AssignmentRequest {
+
+    private Long id;
 
     @Min(0)
     @NotNull
@@ -24,11 +23,19 @@ public class AssignmentRequest {
     @NotEmpty
     private Set<String> emails;
 
+    @NotBlank
+    private String title;
+
+    @NotBlank
+    private String description;
+
     @NotNull
-    @JsonFormat(pattern = "yyyy-mm-dd HH:mm")
     private Date startDate;
 
     @NotNull
-    @JsonFormat(pattern = "yyyy-mm-dd HH:mm")
     private Date finishDate;
+
+    private Integer status = 1;
+
+    private Integer active =1;
 }

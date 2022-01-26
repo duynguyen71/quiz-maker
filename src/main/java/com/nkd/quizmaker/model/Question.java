@@ -59,7 +59,7 @@ public class Question {
     @UpdateTimestamp
     private Date modifyDate;
 
-    private Integer active;
+    private Integer active = 1;
 
 
 }

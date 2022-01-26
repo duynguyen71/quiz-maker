@@ -1,8 +1,11 @@
 package com.nkd.quizmaker.model;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @NoArgsConstructor
@@ -31,6 +34,14 @@ public class SubmissionAnswer {
     private QuizSubmission quizSubmission;
 
     private String message;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createDate;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updateDate;
 
 
 }

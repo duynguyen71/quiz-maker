@@ -34,14 +34,14 @@ public class MemberServiceHelper {
      * @param quizId
      */
     public ResponseEntity<?> getAssignedQuiz(long quizId) {
-        User user = userRepository.getById(getCurrentUid());
-        Quiz quiz = quizRepository.getById(quizId);
-        Optional<Assignment> optionalAssignment = assignmentRepository.findByUserAndQuizAndStatusAndActive(user, quiz, 0, 1);
-        if (optionalAssignment.isPresent()) {
-            return ResponseEntity.ok(new AssignedDetailsResponse(optionalAssignment.get()));
-        }
-        return ResponseEntity.badRequest().body("Can not find assigned quiz");
-
+//        User user = userRepository.getById(getCurrentUid());
+//        Quiz quiz = quizRepository.getById(quizId);
+//        Optional<Assignment> optionalAssignment = assignmentRepository.findByUserAndQuizAndStatusAndActive(user, quiz, 0, 1);
+//        if (optionalAssignment.isPresent()) {
+//            return ResponseEntity.ok(new AssignedDetailsResponse(optionalAssignment.get()));
+//        }
+//        return ResponseEntity.badRequest().body("Can not find assigned quiz");
+return null;
     }
 
 
@@ -49,14 +49,15 @@ public class MemberServiceHelper {
      * get all assigned quizzes
      */
     public ResponseEntity<?> getAssignedQuizzes() {
-        User user = userRepository.getById(getCurrentUid());
-        List<Assignment> assignmentList = assignmentRepository.findByUser(user);
-        List<AssignedDetailsResponse> rs = assignmentList.stream().map(assignment -> {
-            AssignedDetailsResponse assignedDetailsResponse = new AssignedDetailsResponse(assignment);
-            return assignedDetailsResponse;
-        }).collect(Collectors.toList());
-
-        return ResponseEntity.ok(rs);
+//        User user = userRepository.getById(getCurrentUid());
+//        List<Assignment> assignmentList = assignmentRepository.findByUser(user);
+//        List<AssignedDetailsResponse> rs = assignmentList.stream().map(assignment -> {
+//            AssignedDetailsResponse assignedDetailsResponse = new AssignedDetailsResponse(assignment);
+//            return assignedDetailsResponse;
+//        }).collect(Collectors.toList());
+//
+//        return ResponseEntity.ok(rs);
+        return null;
     }
 
     private Long getCurrentUid() {

@@ -1,10 +1,10 @@
 package com.nkd.quizmaker.service;
 
-import com.nkd.quizmaker.model.Quiz;
-import com.nkd.quizmaker.model.QuizSubmission;
-import com.nkd.quizmaker.model.User;
+import com.nkd.quizmaker.enumm.ESubmitType;
+import com.nkd.quizmaker.model.*;
 import com.nkd.quizmaker.repo.QuizRepository;
 import com.nkd.quizmaker.repo.QuizSubmissionRepository;
+import com.nkd.quizmaker.repo.SubmissionAnswerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +16,7 @@ import java.util.Optional;
 public class QuizSubmissionService {
 
     private final QuizSubmissionRepository quizSubmitRepo;
+    private final SubmissionAnswerRepository submissionAnswerRepo;
     private final QuizRepository quizRepo;
 
     public QuizSubmission save(QuizSubmission quizSubmission) {
@@ -27,9 +28,10 @@ public class QuizSubmissionService {
         if (optionalQuiz.isEmpty()) {
             return null;
         }
-        List<QuizSubmission> rs = quizSubmitRepo.findAllByQuizAndUser(optionalQuiz.get(), user);
+        List<QuizSubmission> rs = quizSubmitRepo.findAllByQuizAndUserOrderByAttemptDesc(optionalQuiz.get(), user);
         return rs;
     }
+
 
     public List<QuizSubmission> getSubmissions(User user) {
         return quizSubmitRepo.findAllByUser(user);
@@ -37,6 +39,22 @@ public class QuizSubmissionService {
 
     public int countUserSubmittedQuiz(User user, Quiz quiz) {
         return quizSubmitRepo.countByUserAndQuiz(user, quiz);
+    }
+
+    public int countSubmitted(Quiz quiz) {
+        int i = quizSubmitRepo.countByQuiz(quiz);
+        return i;
+    }
+
+    public List<SubmissionAnswer> getSubmitAnswer(QuizSubmission submission, Question question) {
+        List<SubmissionAnswer> answers = submissionAnswerRepo.findByQuizSubmissionAndQuestion(submission, question);
+        return answers;
+    }
+
+    public List<QuizSubmission> getByUserAndSubmitType(User user, Quiz quiz, ESubmitType eSubmitType) {
+        List<QuizSubmission> rs = quizSubmitRepo.
+                findAllByUserAndQuizAndSubmissionTypeOrderByCreateDateDesc(user, quiz, eSubmitType);
+        return rs;
     }
 
 }

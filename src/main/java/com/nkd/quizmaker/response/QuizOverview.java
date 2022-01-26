@@ -3,6 +3,7 @@ package com.nkd.quizmaker.response;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class QuizOverview {
@@ -25,9 +26,11 @@ public class QuizOverview {
 
     private Date createDate;
 
-    private int playedCount;
+    private Integer playedCount;
 
     private double score;
+
+    private List<QuestionResponse> questions;
 
 
 }

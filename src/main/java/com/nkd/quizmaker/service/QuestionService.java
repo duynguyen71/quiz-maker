@@ -1,6 +1,7 @@
 package com.nkd.quizmaker.service;
 
 import com.nkd.quizmaker.model.Question;
+import com.nkd.quizmaker.model.Quiz;
 import com.nkd.quizmaker.model.User;
 import com.nkd.quizmaker.repo.QuestionRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +33,10 @@ public class QuestionService {
         return questionRepo.getQuestionsNative(title,pageable);
     }
     public Question getByUserAndId(User user,Long id){
-        Optional<Question> optional = questionRepo.findQuestionNative(user.getUid(), id);
-        if(optional.isPresent())
-            return optional.get();
-        return null;
+    return questionRepo.findQuestionNative(user.getUid(), id).orElse(null);
+
     }
+
+
+
 }

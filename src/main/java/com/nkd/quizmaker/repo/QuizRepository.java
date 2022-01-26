@@ -16,7 +16,9 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
     Optional<Quiz> findByCode(String code);
 
-    Optional<Quiz> findByCodeAndActive(String code, int active);
+    Optional<Quiz> findByCodeAndActiveAndStatus(String code, int active, int status);
+
+    Optional<Quiz> findByIdAndActiveAndStatus(Long id, Integer active, Integer status);
 
     boolean existsByCode(String code);
 
@@ -47,4 +49,8 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     Optional<Quiz> findByIdAndOwners(Long id, User user);
 
     Optional<Quiz> findByIdAndOwnersAndQuestions_Active(Long id, User user, Integer active);
+
+    @Query(nativeQuery = true, value="SELECT q.* FROM quiz q WHERE q.code LIKE :code AND (:status IS NULL OR q.status = :status) " +
+            "AND (:active IS NULL OR q.active = :active)")
+    Optional<Quiz> findQuizByCodeNative(String code, Integer status, Integer active);
 }

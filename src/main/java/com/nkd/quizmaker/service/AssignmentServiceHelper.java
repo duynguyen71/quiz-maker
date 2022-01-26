@@ -34,18 +34,7 @@ public class AssignmentServiceHelper {
 
      */
     public ResponseEntity<?> getAssignedUsersByQuiz(long quizId) {
-        Quiz quiz = quizRepo.getById(quizId);
-        List<Assignment> assignments = assignRepo.findByQuiz(quiz);
-        List<Map<String, Object>> rs = assignments.stream().map(assignment -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("userId", assignment.getId().getUserId());
-            map.put("quizId", assignment.getId().getQuizId());
-            map.put("email", assignment.getUser().getEmail());
-            map.put("username", assignment.getUser().getUsername());
-
-            return map;
-        }).collect(Collectors.toList());
-        return ResponseEntity.ok(rs);
+    return null;
     }
 
     /**
@@ -88,8 +77,6 @@ public class AssignmentServiceHelper {
                     assignment.setId(new Assignment.QuizAssignmentId(user.getUid(), quiz.getId()));
                     assignment.setStatus(0);
                     assignment.setActive(1);
-                    assignment.setStartDate(request.getStartDate());
-                    assignment.setFinishDate(request.getFinishDate());
                     assignment.setUser(user);
                     assignment.setQuiz(quiz);
                     assignRepo.save(assignment);
@@ -103,15 +90,16 @@ public class AssignmentServiceHelper {
     }
 
     public ResponseEntity<?> findAllByUser(long userId) {
-        List<Assignment> list = assignRepo.findByUser(userRepo.getById(userId));
-        List<AssignmentResponse> rs = list.stream().map(assignment -> {
-            AssignmentResponse resp = new AssignmentResponse();
-            resp.setQuizId(assignment.getQuiz().getId());
-            resp.setCode(assignment.getQuiz().getCode());
-            resp.setCreatedDate(assignment.getCreatedDate());
-            return resp;
-        }).collect(Collectors.toList());
-        return ResponseEntity.ok(rs);
+//        List<Assignment> list = assignRepo.findByUser(userRepo.getById(userId));
+//        List<AssignmentResponse> rs = list.stream().map(assignment -> {
+//            AssignmentResponse resp = new AssignmentResponse();
+//            resp.setQuizId(assignment.getQuiz().getId());
+//            resp.setCode(assignment.getQuiz().getCode());
+//            resp.setCreatedDate(assignment.getCreatedDate());
+//            return resp;
+//        }).collect(Collectors.toList());
+//        return ResponseEntity.ok(rs);
+        return null;
     }
 
     public ResponseEntity<?> getQuizzesSubmitReports() {

@@ -16,7 +16,7 @@ public class AssignedDetailsResponse {
 
     public AssignedDetailsResponse(Assignment assignment) {
         this.createDate = assignment.getCreatedDate();
-        this.finishDate = assignment.getFinishDate();
+//        this.finishDate = assignment.getFinishDate();
         this.status = assignment.getStatus();
         this.active = assignment.getStatus();
         this.quizDetails = new QuizInfoResponse(assignment.getQuiz());

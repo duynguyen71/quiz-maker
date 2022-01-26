@@ -64,7 +64,7 @@ public class UserService {
         if (optionalQuiz.isEmpty()) {
             return null;
         }
-        List<QuizSubmission> rs = submitRepo.findAllByQuizAndUser(optionalQuiz.get(), getCurrentUser());
+        List<QuizSubmission> rs = submitRepo.findAllByQuizAndUserOrderByAttemptDesc(optionalQuiz.get(), getCurrentUser());
         return rs;
     }
 
@@ -75,8 +75,9 @@ public class UserService {
     }
 
     public List<Assignment> getAssignedQuizzes() {
-        List<Assignment> assignments = assignmentRepo.findByUserAndActiveAndQuiz_Active(getCurrentUser(), 1, 1);
-        return assignments;
+//        List<Assignment> assignments = assignmentRepo.findByUserAndActiveAndQuiz_Active(getCurrentUser(), 1, 1);
+//        return assignments;
+        return null;
     }
 
     public List<QuizSubmission> getSubmissionQuizzes() {

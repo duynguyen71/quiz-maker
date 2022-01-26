@@ -4,6 +4,7 @@ import com.nkd.quizmaker.dto.QuestionDto;
 import com.nkd.quizmaker.dto.SubmissionAnswerDto;
 import com.nkd.quizmaker.model.Question;
 import com.nkd.quizmaker.model.SubmissionAnswer;
+import com.nkd.quizmaker.response.SubmissionAnswersResponse;
 
 public class SubmissionAnswerMapper {
 
@@ -19,4 +20,6 @@ public class SubmissionAnswerMapper {
         return dto;
 
     }
+
+
 }

@@ -1,8 +1,11 @@
 package com.nkd.quizmaker.service;
 
+import com.nkd.quizmaker.mapper.QuestionMapper;
 import com.nkd.quizmaker.mapper.QuizMapper;
 import com.nkd.quizmaker.model.*;
 import com.nkd.quizmaker.repo.*;
+import com.nkd.quizmaker.response.BaseResponse;
+import com.nkd.quizmaker.response.QuizOverview;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,8 +34,8 @@ public class QuizService {
      * @param
      * @return
      */
-    public List<Quiz> getQuizzesNative(String subject, String title,Integer active,Integer status, Pageable pageable) {
-        return quizRepo.getQuizzesNative(subject, title,active,status, pageable);
+    public List<Quiz> getQuizzesNative(String subject, String title, Integer active, Integer status, Pageable pageable) {
+        return quizRepo.getQuizzesNative(subject, title, active, status, pageable);
     }
 
     /**
@@ -40,19 +44,27 @@ public class QuizService {
      * @param code
      * @return
      */
-    public Quiz getByCode(String code) {
-        Optional<Quiz> optional = quizRepo.findByCodeAndActive(code, 1);
+    public Quiz getByCodeAndActiveAndStatus(String code, int active, int status) {
+        Optional<Quiz> optional = quizRepo.findByCodeAndActiveAndStatus(code, active, status);
         if (optional.isPresent()) {
             return optional.get();
         }
         return null;
     }
 
+    public Quiz getByCode(String code) {
+        return quizRepo.findByCode(code).orElse(null);
+    }
+
+    public Quiz getByCodeAndActiveAndStatus(String code, Integer active, Integer status) {
+        return quizRepo.findByCodeAndActiveAndStatus(code, active, status).orElse(null);
+    }
+
     /**
      * get quiz's questions
      */
     public List<Question> getQuizQuestions(String code) {
-        Quiz quiz = getByCode(code);
+        Quiz quiz = getByCodeAndActiveAndStatus(code, 1, 2);
         if (quiz != null) {
             return quiz.getQuestions();
         }
@@ -72,6 +84,26 @@ public class QuizService {
         }
         return null;
     }
+
+    public Quiz getQuizByCodeAndStatusNative(String code, Integer active, Integer status) {
+        return quizRepo.findQuizByCodeNative(code, status, active).orElse(null);
+    }
+
+    public QuizOverview getAssignedQuizDetail(String code) {
+        Optional<Quiz> optional = quizRepo.findQuizByCodeNative(code, 1, 1);
+
+        if (optional.isPresent()) {
+            Quiz quiz = optional.get();
+            QuizOverview quizOverview = QuizMapper.toQuizOverview(quiz, getQuizScore(quiz));
+            quizOverview.setQuestions(questionRepo.findAllByQuizzesAndActive(quiz, 1)
+                    .stream()
+                    .map(QuestionMapper::toQuestionResponse)
+                    .collect(Collectors.toList()));
+            return quizOverview;
+        }
+        return null;
+    }
+
 
     public Quiz save(Quiz quiz) {
         return quizRepo.save(quiz);
@@ -97,30 +129,37 @@ public class QuizService {
         return ResponseEntity.status(400).body("Can not find quiz with id: " + id);
     }
 
-    /**
-     * get questions
-     *
-     * @return
-     */
-    public List<Question> getQuestions() {
-        return null;
+
+    public List<Question> getQuizQuestions(Quiz quiz, Integer active) {
+        return questionRepo.findAllByQuizzesAndActive(quiz, active);
+    }
+
+    public Quiz getByIdAndActiveAndStatus(Long id, int active, int status) {
+        return quizRepo.findByIdAndActiveAndStatus(id, active, status).orElse(null);
+    }
+
+    public double getQuizScore(Quiz quiz) {
+        double quizScore = 0;
+        List<Question> quizQuestions = getQuizQuestions(quiz, 1);
+        for (Question question :
+                quizQuestions) {
+            for (Option option :
+                    question.getOptions()) {
+                quizScore += option.getScore();
+            }
+        }
+
+        return quizScore;
     }
 
 
-  public  Quiz getByIdAndUser(Long id,User user){
-        Optional<Quiz> optional = quizRepo.findByIdAndOwners(id, user);
-//        Optional<Quiz> optional = quizRepo.findByIdAndOwnersAndQuestions_Active(id, user,1);
-
-        if(optional.isPresent())
-            return optional.get();
-        return null;
+    public Quiz getByIdAndUser(Long id, User user) {
+        return quizRepo.findByIdAndOwners(id, user).orElse(null);
     }
 
-    public Quiz getCurrentUserQuiz(Long quizId){
-        Optional<Quiz> optional = quizRepo.findByIdAndOwners(quizId, getCurrentUser());
-        if(optional.isPresent())
-            return optional.get();
-        return null;
+    public Quiz getCurrentUserQuiz(Long quizId) {
+        return quizRepo.findByIdAndOwners(quizId, getCurrentUser()).orElse(null);
+
     }
 
     public User getCurrentUser() {
@@ -128,15 +167,9 @@ public class QuizService {
         return userRepository.getById(myUserDetails.getUser().getUid());
     }
 
-    public double getTotalScore(Collection<Question> questions){
-        double totalScore = 0.0;
-        for (Question question:
-             questions) {
-            for (Option option :question.getOptions()) {
-                totalScore+=option.getScore();
-            }
-        }
-        return totalScore;
 
+    public List<Quiz> getCurrentUserQuizzes(Integer status, Integer active, Pageable pageable) {
+        List<Quiz> quizzes = quizRepo.findByUser(getCurrentUser().getUid(), status, active, pageable);
+        return quizzes;
     }
 }

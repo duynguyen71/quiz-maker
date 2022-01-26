@@ -102,23 +102,5 @@ public class UserServiceHelper {
         private String message;
         private String type;
     }
-    /*
- get assigned quizzes of current users
-  */
-    public ResponseEntity<?> getAssignedQuizzes() {
-        MyUserDetails userDetails = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long uid = userDetails.getUser().getUid();
-        User user = userRepo.getById(uid);
-        List<Assignment> assignmentList = assRepo.findByUser(user);
-        List<AssignmentResponse> rrs = assignmentList.stream().map(assignment -> {
-            AssignmentResponse resp = new AssignmentResponse();
-            resp.setTitle(assignment.getQuiz().getTitle());
-            resp.setCode(assignment.getQuiz().getCode());
-            resp.setQuizId(assignment.getQuiz().getId());
-            resp.setCreatedDate(assignment.getCreatedDate());
-            return resp;
-        }).collect(Collectors.toList());
 
-        return ResponseEntity.ok(rrs);
-    }
 }

@@ -1,5 +1,6 @@
 package com.nkd.quizmaker.model;
 
+import com.nkd.quizmaker.enumm.ESubmitType;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -32,15 +33,23 @@ public class QuizSubmission {
 
     private Double score;
 
-    @Column(columnDefinition = "tinyint(2) default 1")
-    private Integer status;
+    private int completeCount;
+
+    private Integer attempt = 0;
+
+    @Column
+    private Integer status = 0;
 
     @OneToMany(mappedBy = "quizSubmission")
-    private Set<SubmissionAnswer> answers = new HashSet<>();
+    private List<SubmissionAnswer> answers = new ArrayList<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_date", updatable = false)
     private Date createDate;
+
+    @Column
+    @Enumerated(EnumType.ORDINAL)
+    private ESubmitType submissionType;
 
 }

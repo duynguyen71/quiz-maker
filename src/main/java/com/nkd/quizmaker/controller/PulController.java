@@ -37,8 +37,8 @@ public class PulController {
      * find quiz by code
      */
     @GetMapping("/quizzes/{code}")
-    public ResponseEntity<?> findQuizByCode(@PathVariable String code) {
-        return quizHelper.findQuizByCode(code);
+    public ResponseEntity<?> findQuizByCode(@PathVariable String code, @RequestParam Map<String, String> params) {
+        return quizHelper.findQuizByCode(code, params);
     }
 
     /**
@@ -53,13 +53,13 @@ public class PulController {
      * get all subjects
      */
     @GetMapping("/subjects")
-    public ResponseEntity<?> getSubjects(@RequestParam Map<String,String> params) {
+    public ResponseEntity<?> getSubjects(@RequestParam Map<String, String> params) {
         return subjectHelper.getSubjects(params);
     }
 
 
     @PostMapping("/subjects")
-    public ResponseEntity<?> saveSubject(@RequestBody @Valid SubjectRequest subjectRequest){
+    public ResponseEntity<?> saveSubject(@RequestBody @Valid SubjectRequest subjectRequest) {
         return subjectHelper.saveSubject(subjectRequest);
     }
 
@@ -78,7 +78,7 @@ public class PulController {
 
 
     @GetMapping("/files/{name}")
-    public ResponseEntity<?> getImage(@PathVariable String name){
+    public ResponseEntity<?> getImage(@PathVariable String name) {
         return fileHelper.getImage(name);
     }
 
