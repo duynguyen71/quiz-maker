@@ -84,6 +84,11 @@ public class MemController {
         return userHelper.submitExamQuiz(req);
     }
 
+    @GetMapping("/users/{userId}/exam/submission-answers/{id}")
+    public ResponseEntity<?> getExamSubmitAnswers(@PathVariable("id") Long quizId, @PathVariable("userId") Long uid) {
+        return userHelper.getExamSubmitAnswers(quizId, uid);
+    }
+
     @GetMapping("/users/me/submission-answers")
     public ResponseEntity<?> getSubmittedQuizzes() {
         return userHelper.getSubmittedQuizzes();
@@ -100,6 +105,10 @@ public class MemController {
         return userHelper.assignToUsers(request);
     }
 
+    @GetMapping("/users/me/assignment/quizzes/{id}/users")
+    public ResponseEntity<?> getAssignedUsers(@PathVariable("id") Long assignInfoId) {
+        return userHelper.getAssignedUsers(assignInfoId);
+    }
 
 
     @GetMapping("/quizzes/questions")

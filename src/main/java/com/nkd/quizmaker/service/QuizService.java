@@ -60,6 +60,10 @@ public class QuizService {
         return quizRepo.findByCodeAndActiveAndStatus(code, active, status).orElse(null);
     }
 
+    public Quiz getByIdAndActiveAndStatus(Long id,Integer active,Integer status){
+        return quizRepo.findByIdAndActiveAndStatus(id,active,status).orElse(null);
+    }
+
     /**
      * get quiz's questions
      */

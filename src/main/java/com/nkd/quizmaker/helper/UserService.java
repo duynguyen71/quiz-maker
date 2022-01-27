@@ -55,6 +55,10 @@ public class UserService {
         return role;
     }
 
+    public User getById(Long id){
+        return userRepo.findById(id).orElse(null);
+    }
+
     public void save(User user) {
         userRepo.save(user);
     }

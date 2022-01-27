@@ -69,6 +69,7 @@ public class UserHelper {
         quizSubmission.setUser(userService.getCurrentUser());
         quizSubmission.setQuiz(quiz);
         quizSubmission.setAttempt(attemptCount);
+        quizSubmission.setSubmissionType(ESubmitType.FUN);
         quizSubmission = quizSubmissionService.save(quizSubmission);
         int submitQuestionsCount = 0;
         for (SubmissionAnswerRequest answerReq :
@@ -530,8 +531,7 @@ public class UserHelper {
         }
         Quiz quiz = assignmentInfo.getQuiz();
         List<Assignment> assignments = assignmentService.getAssignmentByInfo(assignmentInfo);
-        int i = quizSubmissionService.countSubmitted(assignmentInfo.getQuiz());
-        reportDetailResponse.put("assignmentInfo", AssignmentMapper.toAssignmentInfoResponse(assignmentInfo, i));
+        reportDetailResponse.put("assignmentInfo", AssignmentMapper.toAssignmentInfoResponse(assignmentInfo, 0));
         List<Object> users = new ArrayList<>();
         for (Assignment assignment :
                 assignments) {
@@ -540,7 +540,7 @@ public class UserHelper {
             userEntryMap.put("userInfo", UserMapper.toUserOverviewResponse(user));
             userEntryMap.put("submitDate", assignment.getCreatedDate());
             List<Object> userEntryAnswersMap = new ArrayList<>();
-            List<QuizSubmission> userSubmissionQuiz = quizSubmissionService.getUserSubmissionQuiz(user, quiz.getId());
+            List<QuizSubmission> userSubmissionQuiz = quizSubmissionService.getByUserAndSubmitType(user, quiz, 1, ESubmitType.EXAM);
             if (userSubmissionQuiz != null && !userSubmissionQuiz.isEmpty()) {
                 userEntryMap.put("complete", true);
             } else {
@@ -600,7 +600,8 @@ public class UserHelper {
 
         boolean isUpdate = false;
         AssignmentInfo info;
-        if (aInfoId != null && ValidatorUtils.isNumeric(String.valueOf(aInfoId)) && (info = assignmentService.getAssignmentInfos(aInfoId)) != null) {
+        if (aInfoId != null && ValidatorUtils.isNumeric(String.valueOf(aInfoId)
+        ) && (info = assignmentService.getAssignmentInfos(aInfoId)) != null) {
             isUpdate = true;
         } else {
             info = new AssignmentInfo();
@@ -620,6 +621,8 @@ public class UserHelper {
             if (quiz == null) {
                 return ResponseEntity.badRequest().body(BaseResponse.badRequest("Quiz with id: " + quizId + " is not exist!"));
             }
+            quiz.setStatus(1);
+            quizService.save(quiz);
             info.setQuiz(quiz);
             info = assignmentService.saveInfo(info);
             for (String email :
@@ -631,6 +634,13 @@ public class UserHelper {
                     String username = user.getUsername();
                     try {
                         if (assignment != null && isUpdate) {
+                            List<QuizSubmission> quizSubmissions = quizSubmissionService.getByUserAndSubmitType(user, quiz, 1, ESubmitType.EXAM);
+                            for (int i = 0; i < quizSubmissions.size(); i++) {
+                                QuizSubmission quizSubmission = quizSubmissions.get(i);
+                                quizSubmission.setStatus(0);
+                                quizSubmissionService.save(quizSubmission);
+
+                            }
                             mailService
                                     .sendAssignUpdateToUser(username == null ? fullName : username, email, quiz.getTitle(), quiz.getCode(), startDate, finishDate, new Date());
                         } else {
@@ -737,7 +747,7 @@ public class UserHelper {
         if (assignment == null) {
             return ResponseEntity.badRequest().body(BaseResponse.badRequest("Could not found assignment"));
         }
-        List<QuizSubmission> quizSubmissions = quizSubmissionService.getByUserAndSubmitType(currentUser, quiz, ESubmitType.EXAM);
+        List<QuizSubmission> quizSubmissions = quizSubmissionService.getByUserAndSubmitType(currentUser, quiz, 1, ESubmitType.EXAM);
         if (quizSubmissions != null && !quizSubmissions.isEmpty()) {
             return ResponseEntity.badRequest().body(BaseResponse.badRequest("You has been submit this quiz"));
         }
@@ -852,7 +862,7 @@ public class UserHelper {
             return ResponseEntity.badRequest().build();
         }
         List<QuizSubmission> quizSubmissions = quizSubmissionService
-                .getByUserAndSubmitType(userService.getCurrentUser(), quiz, ESubmitType.EXAM);
+                .getByUserAndSubmitType(userService.getCurrentUser(), quiz, 1, ESubmitType.EXAM);
         if (quizSubmissions != null && !quizSubmissions.isEmpty()) {
             QuizSubmission s = quizSubmissions.get(0);
             Double score = s.getScore();
@@ -896,5 +906,54 @@ public class UserHelper {
             return ResponseEntity.ok().body(BaseResponse.successData(Map.of("isComplete", false)));
 
         }
+    }
+
+    public ResponseEntity<?> getAssignedUsers(Long assignInfoId) {
+
+        AssignmentInfo info = assignmentService.getAssignmentInfos(assignInfoId);
+        if (info == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<Assignment> assignments = assignmentService.getAssignmentByInfo(info);
+        List<UserOverviewResponse> data = assignments.stream()
+                .map(a -> {
+                    User user = a.getUser();
+                    UserOverviewResponse userOverviewResponse = UserMapper.toUserOverviewResponse(user);
+                    return userOverviewResponse;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(BaseResponse.successData(data));
+    }
+
+    public ResponseEntity<?> getExamSubmitAnswers(Long quizId, Long uid) {
+        Quiz quiz = quizService.getByIdAndActiveAndStatus(quizId, 1, 1);
+        if (quiz == null)
+            return ResponseEntity.badRequest().body(BaseResponse.badRequest("Could not found quiz with id: " + quizId));
+        User user = userService.getById(uid);
+        List<QuizSubmission> quizSubmissions = quizSubmissionService.getByUserAndSubmitType(user, quiz, 1, ESubmitType.EXAM);
+
+        QuizSubmission quizSubmission = quizSubmissions.get(0);
+        List<Object> answersList = new ArrayList<>();
+        for (SubmissionAnswer answer :
+                quizSubmission.getAnswers()) {
+            Map<String, Object> userAnswerOptionsMap = new HashMap<>();
+            Question question = answer.getQuestion();
+            userAnswerOptionsMap.put("title", question.getTitle());
+            userAnswerOptionsMap.put("optionType", question.getOptionType().name());
+            userAnswerOptionsMap.put("id", question.getId());
+            List<SubmissionAnswer> submitAnswer = quizSubmissionService.getSubmitAnswer(quizSubmission, question);
+            List<Object> list = new ArrayList<>();
+            for (SubmissionAnswer a :
+                    submitAnswer) {
+                Map<String, Object> optionMap = new HashMap<>();
+                optionMap.put("id", a.getOption().getId());
+                optionMap.put("content", a.getOption().getContent());
+                list.add(optionMap);
+            }
+            userAnswerOptionsMap.put("options", list);
+            answersList.add(userAnswerOptionsMap);
+        }
+        return ResponseEntity.ok(BaseResponse.successData(answersList));
+
     }
 }

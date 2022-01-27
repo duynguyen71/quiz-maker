@@ -28,6 +28,6 @@ public interface QuizSubmissionRepository extends JpaRepository<QuizSubmission, 
     Optional<QuizSubmission> findByQuizAndUserAndSubmissionType(Quiz quiz, User user, ESubmitType submitType);
 
 
-    List<QuizSubmission> findAllByUserAndQuizAndSubmissionTypeOrderByCreateDateDesc(User user, Quiz quiz, ESubmitType submitType);
+    List<QuizSubmission> findAllByUserAndQuizAndStatusAndSubmissionTypeOrderByCreateDateDesc(User user, Quiz quiz,Integer status, ESubmitType submitType);
 
 }
