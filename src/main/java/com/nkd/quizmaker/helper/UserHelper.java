@@ -655,9 +655,9 @@ public class UserHelper {
                         assignment.setQuiz(quiz);
                         assignment.setActive(1);
                         assignment.setStatus(0);
-
                         assignmentService.save(assignment);
                     } catch (MessagingException | UnsupportedEncodingException e) {
+                        log.info("Failed to send mail");
                         e.printStackTrace();
                     }
                 }
